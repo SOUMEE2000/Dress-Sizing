@@ -11,6 +11,7 @@ import cv2
 import argparse
 from numba import jit
 from scipy import ndimage as ndi
+import Pose_Detection
 
 SEAM_COLOR = np.array([255, 200, 200])    # seam visualization color (BGR)
 SHOULD_DOWNSIZE = True                    # if True, downsize image for faster carving
