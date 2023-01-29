@@ -1,8 +1,10 @@
 # To change the body type of one person to body type of another person given two images
 
 # Input images
-<img src = "https://github.com/SOUMEE2000/seam-carving/blob/master/Demos/Input/female1.png">
-<img src = "https://github.com/SOUMEE2000/seam-carving/blob/master/Demos/Input/female2.png">
+<p float="left">
+<img src = "https://github.com/SOUMEE2000/seam-carving/blob/master/Demos/Input/female1.png"/>
+<img src = "https://github.com/SOUMEE2000/seam-carving/blob/master/Demos/Input/female2.png"/>
+</p>
 
 # Output image
 <img src= "https://github.com/SOUMEE2000/seam-carving/blob/master/Demos/Output/img1_2.png">
@@ -36,8 +38,9 @@ Description of parameters:
 To detect essential features of the images to determine by what amount to reduce or increase the width of the given image
 <img src = "https://github.com/SOUMEE2000/seam-carving/blob/master/Demos/Media_pie_landmarks.png">
  
-#Seam-carving Algorithm
+# Seam-carving Algorithm
 An effective method to resize images by removing pixels without cropping images or resulting in loss of information
+<img src = "https://github.com/SOUMEE2000/seam-carving/blob/master/Demos/download.jpg">
 
 
 ## Acknowledgements
