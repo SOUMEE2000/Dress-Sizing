@@ -1,10 +1,10 @@
 # USAGE:
-# python seam_carving.py (-resize) -im IM -out OUT [-dy DY] [-dx DX] 
+# python seam_carving.py (-resize) -im IM -out OUT [-dx DX] 
 # Examples:
 # python seam_carving.py -resize -im demos/ratatouille.jpg -out ratatouille_resize.jpg 
-#        -mask demos/ratatouille_mask.jpg -dy 20 -dx -200 -vis
+#        
 # python seam_carving.py -remove -im demos/eiffel.jpg -out eiffel_remove.jpg 
-#        -rmask demos/eiffel_mask.jpg -vis
+#        
 
 import numpy as np
 import cv2
