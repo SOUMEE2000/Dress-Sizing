@@ -230,7 +230,7 @@ if __name__ == '__main__':
 
     # image resize mode
     if args["resize"]:
-        dy, dx = args["dy"], args["dx"]
+        dy, dx = 0, args["dx"]
         assert dy is not None and dx is not None
         output = seam_carve(im, dy, dx)
         cv2.imwrite(OUTPUT_NAME, output)
