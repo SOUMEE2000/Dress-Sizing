@@ -2,8 +2,8 @@
 
 # Input images
 <p float="left">
-<img src = "https://github.com/SOUMEE2000/seam-carving/blob/master/Demos/Input/female1.png"/>
-<img src = "https://github.com/SOUMEE2000/seam-carving/blob/master/Demos/Input/female2.png"/>
+<img src = "https://github.com/SOUMEE2000/seam-carving/blob/master/Demos/Input/female1.png" height = 50/>
+<img src = "https://github.com/SOUMEE2000/seam-carving/blob/master/Demos/Input/female2.png" height = 50/>
 </p>
 
 # Output image
