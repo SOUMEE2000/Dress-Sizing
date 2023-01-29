@@ -1,8 +1,8 @@
 # To change the body type of one person to body type of another person given two images
 
 # Input images
-< img src = "https://github.com/SOUMEE2000/seam-carving/blob/master/Demos/Input/female1.png">
-< img src = "https://github.com/SOUMEE2000/seam-carving/blob/master/Demos/Input/female2.png">
+<img src = "https://github.com/SOUMEE2000/seam-carving/blob/master/Demos/Input/female1.png">
+<img src = "https://github.com/SOUMEE2000/seam-carving/blob/master/Demos/Input/female2.png">
 
 # Output image
 <img src= "https://github.com/SOUMEE2000/seam-carving/blob/master/Demos/Output/img1_2.png">
