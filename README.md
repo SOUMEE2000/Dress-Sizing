@@ -36,10 +36,12 @@ Description of parameters:
 
 # Key-point Detection
 To detect essential features of the images to determine by what amount to reduce or increase the width of the given image
+
 <img src = "https://github.com/SOUMEE2000/seam-carving/blob/master/Demos/Media_pie_landmarks.png">
  
 # Seam-carving Algorithm
 An effective method to resize images by removing pixels without cropping images or resulting in loss of information
+
 <img src = "https://github.com/SOUMEE2000/seam-carving/blob/master/Demos/download.jpg">
 
 
