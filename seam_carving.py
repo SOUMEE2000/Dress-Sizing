@@ -1,10 +1,10 @@
 # USAGE:
-# python seam_carving.py (-resize) -im IM -out OUT [-dx DX] 
+# python seam_carving.py (-resize) -im IM -out OUT [-dy DY] [-dx DX] 
 # Examples:
 # python seam_carving.py -resize -im demos/ratatouille.jpg -out ratatouille_resize.jpg 
-#        
+#        -mask demos/ratatouille_mask.jpg -dy 20 -dx -200 -vis
 # python seam_carving.py -remove -im demos/eiffel.jpg -out eiffel_remove.jpg 
-#        
+#        -rmask demos/eiffel_mask.jpg -vis
 
 import numpy as np
 import cv2
@@ -192,10 +192,10 @@ def seams_insertion(im, num_add):
 # MAIN DRIVER FUNCTIONS
 ########################################
 
-def seam_carve(im, dy, dx):
+def seam_carve(im, dx):
     im = im.astype(np.float64)
     h, w = im.shape[:2]
-    assert h + dy > 0 and w + dx > 0 and dy <= h and dx <= w
+    assert h > 0 and w + dx > 0 and dx <= w
     output = im
 
     if dx < 0:
@@ -230,9 +230,9 @@ if __name__ == '__main__':
 
     # image resize mode
     if args["resize"]:
-        dy, dx = 0, args["dx"]
-        assert dy is not None and dx is not None
-        output = seam_carve(im, dy, dx)
+        dx = args["dx"]
+        assert dx is not None
+        output = seam_carve(im, dx)
         cv2.imwrite(OUTPUT_NAME, output)
 
    
