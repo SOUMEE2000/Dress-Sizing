@@ -19,14 +19,16 @@ This is the image of the first person made to like the second person
 
 ## Usage
 ```
-python seam_carving.py (-resize | -remove) -im <IM_PATH> -out <OUTPUT_IM_NAME> [-dx <DX>] 
+python seam_carving.py (-resize) -im1 <IM_PATH> -im2 <IM_PATH> 
+                         -out <OUTPUT_IM_NAME> [-dx <DX>] 
 ```
 
 
 Description of parameters:
-* `-im`: The path to the image to be processed.
+* `-im1`: The path to the image to change.
+* `-im2`: The path of the target image.
 * `-out`: The name for the output image.
-* '-dx- : Number of pixels to remove. Positive for adding pixels, negative for subtracting pixels
+* '-dx- : Number of pixels to remove. Positive for adding pixels, negative for subtracting pixels. Optional. If not present number of pixels gets calculated.
 
 
 # Algorithm used: 
