@@ -1,11 +1,10 @@
 # USAGE:
-# python seam_carving.py (-resize | -remove) -im IM -out OUT [-mask MASK]
-#                        [-rmask RMASK] [-dy DY] [-dx DX] [-vis] [-hremove] [-backward_energy]
+# python seam_carving.py (-resize) -im IM -out OUT [-dx DX] 
 # Examples:
 # python seam_carving.py -resize -im demos/ratatouille.jpg -out ratatouille_resize.jpg 
-#        -mask demos/ratatouille_mask.jpg -dy 20 -dx -200 -vis
+#        
 # python seam_carving.py -remove -im demos/eiffel.jpg -out eiffel_remove.jpg 
-#        -rmask demos/eiffel_mask.jpg -vis
+#        
 
 import numpy as np
 import cv2
@@ -16,8 +15,6 @@ from scipy import ndimage as ndi
 SEAM_COLOR = np.array([255, 200, 200])    # seam visualization color (BGR)
 SHOULD_DOWNSIZE = True                    # if True, downsize image for faster carving
 DOWNSIZE_WIDTH = 500                      # resized image width if SHOULD_DOWNSIZE is True
-ENERGY_MASK_CONST = 100000.0              # large energy value for protective masking
-MASK_THRESHOLD = 10                       # minimum pixel intensity for binary mask
 USE_FORWARD_ENERGY = True                 # if True, use forward energy algorithm
 
 ########################################
@@ -117,21 +114,14 @@ def remove_seam(im, boolmask):
     return im[boolmask3c].reshape((h, w - 1, 3))
 
 @jit
-def get_minimum_seam(im, mask=None, remove_mask=None):
+def get_minimum_seam(im):
     """
     DP algorithm for finding the seam of minimum energy. Code adapted from 
     https://karthikkaranth.me/blog/implementing-seam-carving-with-python/
     """
     h, w = im.shape[:2]
-    energyfn = forward_energy if USE_FORWARD_ENERGY else backward_energy
+    energyfn = forward_energy
     M = energyfn(im)
-
-    if mask is not None:
-        M[np.where(mask > MASK_THRESHOLD)] = ENERGY_MASK_CONST
-
-    # give removal mask priority over protective mask by using larger negative value
-    if remove_mask is not None:
-        M[np.where(remove_mask > MASK_THRESHOLD)] = -ENERGY_MASK_CONST * 100
 
     backtrack = np.zeros_like(M, dtype=np.int)
 
@@ -165,23 +155,21 @@ def get_minimum_seam(im, mask=None, remove_mask=None):
 # MAIN ALGORITHM
 ######################################## 
 
-def seams_removal(im, num_remove, mask=None, vis=False, rot=False):
+def seams_removal(im, num_remove):
     for _ in range(num_remove):
-        seam_idx, boolmask = get_minimum_seam(im, mask)
+        seam_idx, boolmask = get_minimum_seam(im)
         im = remove_seam(im, boolmask)
         
-    return im, mask
+    return im
 
 
-def seams_insertion(im, num_add, mask=None, vis=False, rot=False):
+def seams_insertion(im, num_add):
     seams_record = []
     temp_im = im.copy()
-    temp_mask = mask.copy() if mask is not None else None
 
     for _ in range(num_add):
-        seam_idx, boolmask = get_minimum_seam(temp_im, temp_mask)
-        if vis:
-            visualize(temp_im, boolmask, rotate=rot)
+        seam_idx, boolmask = get_minimum_seam(temp_im)
+        
 
         seams_record.append(seam_idx)
         temp_im = remove_seam(temp_im, boolmask)
@@ -198,27 +186,23 @@ def seams_insertion(im, num_add, mask=None, vis=False, rot=False):
         for remaining_seam in seams_record:
             remaining_seam[np.where(remaining_seam >= seam)] += 2         
 
-    return im, mask
+    return im
 
 ########################################
 # MAIN DRIVER FUNCTIONS
 ########################################
 
-def seam_carve(im, dy, dx, mask=None, vis=False):
+def seam_carve(im, dy, dx):
     im = im.astype(np.float64)
     h, w = im.shape[:2]
     assert h + dy > 0 and w + dx > 0 and dy <= h and dx <= w
-
-    if mask is not None:
-        mask = mask.astype(np.float64)
-
     output = im
 
     if dx < 0:
-        output, mask = seams_removal(output, -dx, mask, vis)
+        output = seams_removal(output, -dx)
 
     elif dx > 0:
-        output, mask = seams_insertion(output, dx, mask, vis)
+        output = seams_insertion(output, dx)
 
     return output      
 
@@ -227,40 +211,28 @@ if __name__ == '__main__':
     ap = argparse.ArgumentParser()
     group = ap.add_mutually_exclusive_group(required=True)
     group.add_argument("-resize", action='store_true')
-    group.add_argument("-remove", action='store_true')
 
     ap.add_argument("-im", help="Path to image", required=True)
     ap.add_argument("-out", help="Output file name", required=True)
-    ap.add_argument("-mask", help="Path to (protective) mask")
-    ap.add_argument("-rmask", help="Path to removal mask")
-    ap.add_argument("-dy", help="Number of vertical seams to add/subtract", type=int, default=0)
     ap.add_argument("-dx", help="Number of horizontal seams to add/subtract", type=int, default=0)
-    ap.add_argument("-hremove", help="Remove horizontal seams for object removal", action='store_true')
     args = vars(ap.parse_args())
 
-    IM_PATH, MASK_PATH, OUTPUT_NAME, R_MASK_PATH = args["im"], args["mask"], args["out"], args["rmask"]
+    IM_PATH, OUTPUT_NAME = args["im"], args["out"]
 
     im = cv2.imread(IM_PATH)
     assert im is not None
-    mask = cv2.imread(MASK_PATH, 0) if MASK_PATH else None
-    rmask = cv2.imread(R_MASK_PATH, 0) if R_MASK_PATH else None
 
-    USE_FORWARD_ENERGY = not args["backward_energy"]
 
     # downsize image for faster processing
     h, w = im.shape[:2]
     if SHOULD_DOWNSIZE and w > DOWNSIZE_WIDTH:
         im = resize(im, width=DOWNSIZE_WIDTH)
-        if mask is not None:
-            mask = resize(mask, width=DOWNSIZE_WIDTH)
-        if rmask is not None:
-            rmask = resize(rmask, width=DOWNSIZE_WIDTH)
 
     # image resize mode
     if args["resize"]:
         dy, dx = args["dy"], args["dx"]
         assert dy is not None and dx is not None
-        output = seam_carve(im, dy, dx, mask)
+        output = seam_carve(im, dy, dx)
         cv2.imwrite(OUTPUT_NAME, output)
 
    
