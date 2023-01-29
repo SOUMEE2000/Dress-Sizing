@@ -7,7 +7,7 @@
 </p>
 
 # Output image
-<img src= "https://github.com/SOUMEE2000/seam-carving/blob/master/Demos/Output/img1_2.png">
+<img src= "https://github.com/SOUMEE2000/seam-carving/blob/master/Demos/Output/img1_2.png" height = 500/>
 This is the image of the first person made to like the second person
 
 ## Requirements
