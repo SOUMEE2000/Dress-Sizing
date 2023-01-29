@@ -11,7 +11,7 @@ import cv2
 import argparse
 from numba import jit
 from scipy import ndimage as ndi
-import Pose_Detection
+import Pose_Detection as pos
 
 SEAM_COLOR = np.array([255, 200, 200])    # seam visualization color (BGR)
 SHOULD_DOWNSIZE = True                    # if True, downsize image for faster carving
@@ -213,16 +213,25 @@ if __name__ == '__main__':
     group = ap.add_mutually_exclusive_group(required=True)
     group.add_argument("-resize", action='store_true')
 
-    ap.add_argument("-im", help="Path to image", required=True)
+    ap.add_argument("-im1", help="Path to image", required=True)
+    ap.add_argument("-im2", help="Path to image", required=True)
     ap.add_argument("-out", help="Output file name", required=True)
     ap.add_argument("-dx", help="Number of horizontal seams to add/subtract", type=int, default=0)
     args = vars(ap.parse_args())
 
-    IM_PATH, OUTPUT_NAME = args["im"], args["out"]
+    IM1_PATH, IM2_PATH, OUTPUT_NAME = args["im1"], args["im2"], args["out"]
 
-    im = cv2.imread(IM_PATH)
+    im1 = cv2.imread(IM1_PATH)
     assert im is not None
-
+    
+    im2 = cv2.imread(IM1_PATH)
+    assert im is not None
+    
+    if no args["dx"]:
+      dx = pos.detectPose(im1, im2, pos.pose_image, draw=True, display=True)
+    else:
+        dx = args["dx"]
+        assert dx is not None
 
     # downsize image for faster processing
     h, w = im.shape[:2]
@@ -231,8 +240,7 @@ if __name__ == '__main__':
 
     # image resize mode
     if args["resize"]:
-        dx = args["dx"]
-        assert dx is not None
+        
         output = seam_carve(im, dx)
         cv2.imwrite(OUTPUT_NAME, output)
 
