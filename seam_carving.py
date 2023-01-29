@@ -24,15 +24,6 @@ USE_FORWARD_ENERGY = True                 # if True, use forward energy algorith
 # UTILITY CODE
 ########################################
 
-def visualize(im, boolmask=None, rotate=False):
-    vis = im.astype(np.uint8)
-    if boolmask is not None:
-        vis[np.where(boolmask == False)] = SEAM_COLOR
-    if rotate:
-        vis = rotate_image(vis, False)
-    cv2.imshow("visualization", vis)
-    cv2.waitKey(1)
-    return vis
 
 def resize(image, width):
     dim = None
@@ -47,20 +38,6 @@ def rotate_image(image, clockwise):
 ########################################
 # ENERGY FUNCTIONS
 ########################################
-
-def backward_energy(im):
-    """
-    Simple gradient magnitude energy map.
-    """
-    xgrad = ndi.convolve1d(im, np.array([1, 0, -1]), axis=1, mode='wrap')
-    ygrad = ndi.convolve1d(im, np.array([1, 0, -1]), axis=0, mode='wrap')
-    
-    grad_mag = np.sqrt(np.sum(xgrad**2, axis=2) + np.sum(ygrad**2, axis=2))
-
-    # vis = visualize(grad_mag)
-    # cv2.imwrite("backward_energy_demo.jpg", vis)
-
-    return grad_mag
 
 @jit
 def forward_energy(im):
@@ -134,38 +111,10 @@ def add_seam(im, seam_idx):
     return output
 
 @jit
-def add_seam_grayscale(im, seam_idx):
-    """
-    Add a vertical seam to a grayscale image at the indices provided 
-    by averaging the pixels values to the left and right of the seam.
-    """    
-    h, w = im.shape[:2]
-    output = np.zeros((h, w + 1))
-    for row in range(h):
-        col = seam_idx[row]
-        if col == 0:
-            p = np.average(im[row, col: col + 2])
-            output[row, col] = im[row, col]
-            output[row, col + 1] = p
-            output[row, col + 1:] = im[row, col:]
-        else:
-            p = np.average(im[row, col - 1: col + 1])
-            output[row, : col] = im[row, : col]
-            output[row, col] = p
-            output[row, col + 1:] = im[row, col:]
-
-    return output
-
-@jit
 def remove_seam(im, boolmask):
     h, w = im.shape[:2]
     boolmask3c = np.stack([boolmask] * 3, axis=2)
     return im[boolmask3c].reshape((h, w - 1, 3))
-
-@jit
-def remove_seam_grayscale(im, boolmask):
-    h, w = im.shape[:2]
-    return im[boolmask].reshape((h, w - 1))
 
 @jit
 def get_minimum_seam(im, mask=None, remove_mask=None):
@@ -219,11 +168,8 @@ def get_minimum_seam(im, mask=None, remove_mask=None):
 def seams_removal(im, num_remove, mask=None, vis=False, rot=False):
     for _ in range(num_remove):
         seam_idx, boolmask = get_minimum_seam(im, mask)
-        if vis:
-            visualize(im, boolmask, rotate=rot)
         im = remove_seam(im, boolmask)
-        if mask is not None:
-            mask = remove_seam_grayscale(mask, boolmask)
+        
     return im, mask
 
 
@@ -239,18 +185,14 @@ def seams_insertion(im, num_add, mask=None, vis=False, rot=False):
 
         seams_record.append(seam_idx)
         temp_im = remove_seam(temp_im, boolmask)
-        if temp_mask is not None:
-            temp_mask = remove_seam_grayscale(temp_mask, boolmask)
+        
 
     seams_record.reverse()
 
     for _ in range(num_add):
         seam = seams_record.pop()
         im = add_seam(im, seam)
-        if vis:
-            visualize(im, rotate=rot)
-        if mask is not None:
-            mask = add_seam_grayscale(mask, seam)
+        
 
         # update the remaining seam indices
         for remaining_seam in seams_record:
@@ -278,53 +220,7 @@ def seam_carve(im, dy, dx, mask=None, vis=False):
     elif dx > 0:
         output, mask = seams_insertion(output, dx, mask, vis)
 
-    if dy < 0:
-        output = rotate_image(output, True)
-        if mask is not None:
-            mask = rotate_image(mask, True)
-        output, mask = seams_removal(output, -dy, mask, vis, rot=True)
-        output = rotate_image(output, False)
-
-    elif dy > 0:
-        output = rotate_image(output, True)
-        if mask is not None:
-            mask = rotate_image(mask, True)
-        output, mask = seams_insertion(output, dy, mask, vis, rot=True)
-        output = rotate_image(output, False)
-
-    return output
-
-
-def object_removal(im, rmask, mask=None, vis=False, horizontal_removal=False):
-    im = im.astype(np.float64)
-    rmask = rmask.astype(np.float64)
-    if mask is not None:
-        mask = mask.astype(np.float64)
-    output = im
-
-    h, w = im.shape[:2]
-
-    if horizontal_removal:
-        output = rotate_image(output, True)
-        rmask = rotate_image(rmask, True)
-        if mask is not None:
-            mask = rotate_image(mask, True)
-
-    while len(np.where(rmask > MASK_THRESHOLD)[0]) > 0:
-        seam_idx, boolmask = get_minimum_seam(output, mask, rmask)
-        if vis:
-            visualize(output, boolmask, rotate=horizontal_removal)            
-        output = remove_seam(output, boolmask)
-        rmask = remove_seam_grayscale(rmask, boolmask)
-        if mask is not None:
-            mask = remove_seam_grayscale(mask, boolmask)
-
-    num_add = (h if horizontal_removal else w) - output.shape[1]
-    output, mask = seams_insertion(output, num_add, mask, vis, rot=horizontal_removal)
-    if horizontal_removal:
-        output = rotate_image(output, False)
-
-    return output        
+    return output      
 
 
 if __name__ == '__main__':
@@ -339,9 +235,7 @@ if __name__ == '__main__':
     ap.add_argument("-rmask", help="Path to removal mask")
     ap.add_argument("-dy", help="Number of vertical seams to add/subtract", type=int, default=0)
     ap.add_argument("-dx", help="Number of horizontal seams to add/subtract", type=int, default=0)
-    ap.add_argument("-vis", help="Visualize the seam removal process", action='store_true')
     ap.add_argument("-hremove", help="Remove horizontal seams for object removal", action='store_true')
-    ap.add_argument("-backward_energy", help="Use backward energy map (default is forward)", action='store_true')
     args = vars(ap.parse_args())
 
     IM_PATH, MASK_PATH, OUTPUT_NAME, R_MASK_PATH = args["im"], args["mask"], args["out"], args["rmask"]
@@ -366,12 +260,7 @@ if __name__ == '__main__':
     if args["resize"]:
         dy, dx = args["dy"], args["dx"]
         assert dy is not None and dx is not None
-        output = seam_carve(im, dy, dx, mask, args["vis"])
+        output = seam_carve(im, dy, dx, mask)
         cv2.imwrite(OUTPUT_NAME, output)
 
-    # object removal mode
-    elif args["remove"]:
-        assert rmask is not None
-        output = object_removal(im, rmask, mask, args["vis"], args["hremove"])
-        cv2.imwrite(OUTPUT_NAME, output)
-
+   
