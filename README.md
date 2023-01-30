@@ -1,14 +1,20 @@
 # To change the body type of one person to body type of another person given two images
 
-# Input images
-<p float="left">
-<img src = "https://github.com/SOUMEE2000/seam-carving/blob/master/Demos/Input/female1.png" height = 500/>
-<img src = "https://github.com/SOUMEE2000/seam-carving/blob/master/Demos/Input/female2.png" height = 500/>
+# Set-I
+<p>
+<img src = "https://github.com/SOUMEE2000/seam-carving/blob/master/Demos/Input/female1.png" height = 400/>
+<img src = "https://github.com/SOUMEE2000/seam-carving/blob/master/Demos/Input/female2.png" height = 400/> 
+<img src = "https://github.com/SOUMEE2000/Dress-Sizing/blob/master/Demos/arrow.png" height = 100>
+<img src = "https://github.com/SOUMEE2000/seam-carving/blob/master/Demos/Output/img1_2.png" height = 400/>
 </p>
 
-# Output image
-<img src= "https://github.com/SOUMEE2000/seam-carving/blob/master/Demos/Output/img1_2.png" height = 500/>
-This is the image of the first person made to like the second person
+# Set-II
+<p>
+<img src = "https://github.com/SOUMEE2000/seam-carving/blob/master/Demos/Input/female2.png" height = 400/>
+<img src = "https://github.com/SOUMEE2000/seam-carving/blob/master/Demos/Input/female3.png" height = 400/> 
+<img src = "https://github.com/SOUMEE2000/Dress-Sizing/blob/master/Demos/arrow.png" height = 100>
+<img src = "https://github.com/SOUMEE2000/seam-carving/blob/master/Demos/Output/img2_3.png" height = 400/>
+</p>
 
 ## Requirements
 * OpenCV
