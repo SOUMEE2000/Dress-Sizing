@@ -25,6 +25,9 @@
 
 ## Usage
 ```
+pip install -r requirements.txt
+```
+```
 python seam_carving.py (-resize) -im1 <IM_PATH> -im2 <IM_PATH> 
                          -out <OUTPUT_IM_NAME> [-dx <DX>] 
 ```
