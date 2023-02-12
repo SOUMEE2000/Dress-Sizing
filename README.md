@@ -16,6 +16,9 @@
 <img src = "https://github.com/SOUMEE2000/seam-carving/blob/master/Demos/Output/img2_3.png" height = 400/>
 </p>
 
+# Workflow
+<img src= "https://github.com/SOUMEE2000/Dress-Sizing/blob/master/Demos/Dress-Size-Workflow-Page-2.drawio.png">
+
 ## Requirements
 * OpenCV
 * scipy
